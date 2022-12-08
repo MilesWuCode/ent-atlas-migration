@@ -12,12 +12,14 @@ go mod init ent-atlas-migration
 
 ```sh
 # 建立User指令
+
 go run -mod=mod entgo.io/ent/cmd/ent init User
 ```
 
 ```go
 // ent/schema/user.go
 // 新增欄位
+
 func (User) Fields() []ent.Field {
     return []ent.Field{
         field.String("name").
@@ -30,7 +32,7 @@ func (User) Fields() []ent.Field {
 ```
 
 ```sh
-# 生成代碼
+# 產生代碼
 go generate ./ent
 ```
 
@@ -44,6 +46,7 @@ go mod download github.com/go-sql-driver/mysql
 ```go
 // main.go
 // 主程式
+
 package main
 
 import (
@@ -75,4 +78,73 @@ func main() {
 go mod tidy
 # 執行後,觀察資料庫表和欄位
 go run main.go
+```
+
+# 設定 Atlas
+
+- 若是用 entgql 則改用 entc 方式
+
+```diff
+# ent/generate.go
+# 填加 --feature sql/versioned-migration
+
+- //go:generate go run -mod=mod entgo.io/ent/cmd/ent generate ./schema
++ //go:generate go run -mod=mod entgo.io/ent/cmd/ent generate --feature sql/versioned-migration ./schema
+```
+
+```go
+// ent/migrate/main.go
+// 執行 migration 工具
+
+//go:build ignore
+
+package main
+
+import (
+    "context"
+    "log"
+    "os"
+
+    "<project>/ent/migrate"
+
+    atlas "ariga.io/atlas/sql/migrate"
+    "entgo.io/ent/dialect"
+    "entgo.io/ent/dialect/sql/schema"
+    _ "github.com/go-sql-driver/mysql"
+)
+
+func main() {
+    ctx := context.Background()
+    // Create a local migration directory able to understand Atlas migration file format for replay.
+    dir, err := atlas.NewLocalDir("ent/migrate/migrations")
+    if err != nil {
+        log.Fatalf("failed creating atlas migration directory: %v", err)
+    }
+    // Migrate diff options.
+    opts := []schema.MigrateOption{
+        schema.WithDir(dir),                         // provide migration directory
+        schema.WithMigrationMode(schema.ModeReplay), // provide migration mode
+        schema.WithDialect(dialect.MySQL),           // Ent dialect to use
+        schema.WithFormatter(atlas.DefaultFormatter),
+    }
+    if len(os.Args) != 2 {
+        log.Fatalln("migration name is required. Use: 'go run -mod=mod ent/migrate/main.go <name>'")
+    }
+    // Generate migrations using Atlas support for MySQL (note the Ent dialect option passed above).
+    err = migrate.NamedDiff(ctx, "mysql://root:pass@localhost:3306/test", os.Args[1], opts...)
+    if err != nil {
+        log.Fatalf("failed generating migration file: %v", err)
+    }
+}
+```
+
+```sh
+# 建立資料夾
+mkdir ent/migrate/migrations
+
+# 為 ent/generate.go 填加的 --feature sql/versioned-migration 產生代碼
+go generate ./ent
+
+# 產生 *_create_users.sql, atlas.sum 來記錄 migration
+go run -mod=mod ent/migrate/main.go create_users
 ```
