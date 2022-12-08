@@ -39,6 +39,12 @@ func (uc *UserCreate) SetAge(i int) *UserCreate {
 	return uc
 }
 
+// SetHeight sets the "height" field.
+func (uc *UserCreate) SetHeight(f float64) *UserCreate {
+	uc.mutation.SetHeight(f)
+	return uc
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uc *UserCreate) Mutation() *UserMutation {
 	return uc.mutation
@@ -135,6 +141,14 @@ func (uc *UserCreate) check() error {
 			return &ValidationError{Name: "age", err: fmt.Errorf(`ent: validator failed for field "User.age": %w`, err)}
 		}
 	}
+	if _, ok := uc.mutation.Height(); !ok {
+		return &ValidationError{Name: "height", err: errors.New(`ent: missing required field "User.height"`)}
+	}
+	if v, ok := uc.mutation.Height(); ok {
+		if err := user.HeightValidator(v); err != nil {
+			return &ValidationError{Name: "height", err: fmt.Errorf(`ent: validator failed for field "User.height": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -169,6 +183,10 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.Age(); ok {
 		_spec.SetField(user.FieldAge, field.TypeInt, value)
 		_node.Age = value
+	}
+	if value, ok := uc.mutation.Height(); ok {
+		_spec.SetField(user.FieldHeight, field.TypeFloat64, value)
+		_node.Height = value
 	}
 	return _node, _spec
 }

@@ -34,6 +34,8 @@ type UserMutation struct {
 	name          *string
 	age           *int
 	addage        *int
+	height        *float64
+	addheight     *float64
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*User, error)
@@ -230,6 +232,62 @@ func (m *UserMutation) ResetAge() {
 	m.addage = nil
 }
 
+// SetHeight sets the "height" field.
+func (m *UserMutation) SetHeight(f float64) {
+	m.height = &f
+	m.addheight = nil
+}
+
+// Height returns the value of the "height" field in the mutation.
+func (m *UserMutation) Height() (r float64, exists bool) {
+	v := m.height
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHeight returns the old "height" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldHeight(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHeight is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHeight requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHeight: %w", err)
+	}
+	return oldValue.Height, nil
+}
+
+// AddHeight adds f to the "height" field.
+func (m *UserMutation) AddHeight(f float64) {
+	if m.addheight != nil {
+		*m.addheight += f
+	} else {
+		m.addheight = &f
+	}
+}
+
+// AddedHeight returns the value that was added to the "height" field in this mutation.
+func (m *UserMutation) AddedHeight() (r float64, exists bool) {
+	v := m.addheight
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetHeight resets all changes to the "height" field.
+func (m *UserMutation) ResetHeight() {
+	m.height = nil
+	m.addheight = nil
+}
+
 // Where appends a list predicates to the UserMutation builder.
 func (m *UserMutation) Where(ps ...predicate.User) {
 	m.predicates = append(m.predicates, ps...)
@@ -249,12 +307,15 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 3)
 	if m.name != nil {
 		fields = append(fields, user.FieldName)
 	}
 	if m.age != nil {
 		fields = append(fields, user.FieldAge)
+	}
+	if m.height != nil {
+		fields = append(fields, user.FieldHeight)
 	}
 	return fields
 }
@@ -268,6 +329,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Name()
 	case user.FieldAge:
 		return m.Age()
+	case user.FieldHeight:
+		return m.Height()
 	}
 	return nil, false
 }
@@ -281,6 +344,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldName(ctx)
 	case user.FieldAge:
 		return m.OldAge(ctx)
+	case user.FieldHeight:
+		return m.OldHeight(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -304,6 +369,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetAge(v)
 		return nil
+	case user.FieldHeight:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHeight(v)
+		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
@@ -315,6 +387,9 @@ func (m *UserMutation) AddedFields() []string {
 	if m.addage != nil {
 		fields = append(fields, user.FieldAge)
 	}
+	if m.addheight != nil {
+		fields = append(fields, user.FieldHeight)
+	}
 	return fields
 }
 
@@ -325,6 +400,8 @@ func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case user.FieldAge:
 		return m.AddedAge()
+	case user.FieldHeight:
+		return m.AddedHeight()
 	}
 	return nil, false
 }
@@ -340,6 +417,13 @@ func (m *UserMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddAge(v)
+		return nil
+	case user.FieldHeight:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddHeight(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User numeric field %s", name)
@@ -373,6 +457,9 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldAge:
 		m.ResetAge()
+		return nil
+	case user.FieldHeight:
+		m.ResetHeight()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)

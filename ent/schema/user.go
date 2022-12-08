@@ -17,6 +17,8 @@ func (User) Fields() []ent.Field {
 			Default("unknown"),
 		field.Int("age").
 			Positive(),
+		field.Float("height").
+			Positive(),
 	}
 }
 

@@ -54,6 +54,19 @@ func (uu *UserUpdate) AddAge(i int) *UserUpdate {
 	return uu
 }
 
+// SetHeight sets the "height" field.
+func (uu *UserUpdate) SetHeight(f float64) *UserUpdate {
+	uu.mutation.ResetHeight()
+	uu.mutation.SetHeight(f)
+	return uu
+}
+
+// AddHeight adds f to the "height" field.
+func (uu *UserUpdate) AddHeight(f float64) *UserUpdate {
+	uu.mutation.AddHeight(f)
+	return uu
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
@@ -126,6 +139,11 @@ func (uu *UserUpdate) check() error {
 			return &ValidationError{Name: "age", err: fmt.Errorf(`ent: validator failed for field "User.age": %w`, err)}
 		}
 	}
+	if v, ok := uu.mutation.Height(); ok {
+		if err := user.HeightValidator(v); err != nil {
+			return &ValidationError{Name: "height", err: fmt.Errorf(`ent: validator failed for field "User.height": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -155,6 +173,12 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := uu.mutation.AddedAge(); ok {
 		_spec.AddField(user.FieldAge, field.TypeInt, value)
+	}
+	if value, ok := uu.mutation.Height(); ok {
+		_spec.SetField(user.FieldHeight, field.TypeFloat64, value)
+	}
+	if value, ok := uu.mutation.AddedHeight(); ok {
+		_spec.AddField(user.FieldHeight, field.TypeFloat64, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -199,6 +223,19 @@ func (uuo *UserUpdateOne) SetAge(i int) *UserUpdateOne {
 // AddAge adds i to the "age" field.
 func (uuo *UserUpdateOne) AddAge(i int) *UserUpdateOne {
 	uuo.mutation.AddAge(i)
+	return uuo
+}
+
+// SetHeight sets the "height" field.
+func (uuo *UserUpdateOne) SetHeight(f float64) *UserUpdateOne {
+	uuo.mutation.ResetHeight()
+	uuo.mutation.SetHeight(f)
+	return uuo
+}
+
+// AddHeight adds f to the "height" field.
+func (uuo *UserUpdateOne) AddHeight(f float64) *UserUpdateOne {
+	uuo.mutation.AddHeight(f)
 	return uuo
 }
 
@@ -287,6 +324,11 @@ func (uuo *UserUpdateOne) check() error {
 			return &ValidationError{Name: "age", err: fmt.Errorf(`ent: validator failed for field "User.age": %w`, err)}
 		}
 	}
+	if v, ok := uuo.mutation.Height(); ok {
+		if err := user.HeightValidator(v); err != nil {
+			return &ValidationError{Name: "height", err: fmt.Errorf(`ent: validator failed for field "User.height": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -333,6 +375,12 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if value, ok := uuo.mutation.AddedAge(); ok {
 		_spec.AddField(user.FieldAge, field.TypeInt, value)
+	}
+	if value, ok := uuo.mutation.Height(); ok {
+		_spec.SetField(user.FieldHeight, field.TypeFloat64, value)
+	}
+	if value, ok := uuo.mutation.AddedHeight(); ok {
+		_spec.AddField(user.FieldHeight, field.TypeFloat64, value)
 	}
 	_node = &User{config: uuo.config}
 	_spec.Assign = _node.assignValues

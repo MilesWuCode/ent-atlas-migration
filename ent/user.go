@@ -19,6 +19,8 @@ type User struct {
 	Name string `json:"name,omitempty"`
 	// Age holds the value of the "age" field.
 	Age int `json:"age,omitempty"`
+	// Height holds the value of the "height" field.
+	Height float64 `json:"height,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -26,6 +28,8 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case user.FieldHeight:
+			values[i] = new(sql.NullFloat64)
 		case user.FieldID, user.FieldAge:
 			values[i] = new(sql.NullInt64)
 		case user.FieldName:
@@ -63,6 +67,12 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.Age = int(value.Int64)
 			}
+		case user.FieldHeight:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field height", values[i])
+			} else if value.Valid {
+				u.Height = value.Float64
+			}
 		}
 	}
 	return nil
@@ -96,6 +106,9 @@ func (u *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("age=")
 	builder.WriteString(fmt.Sprintf("%v", u.Age))
+	builder.WriteString(", ")
+	builder.WriteString("height=")
+	builder.WriteString(fmt.Sprintf("%v", u.Height))
 	builder.WriteByte(')')
 	return builder.String()
 }

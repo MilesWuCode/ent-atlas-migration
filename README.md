@@ -145,6 +145,52 @@ mkdir ent/migrate/migrations
 # 為 ent/generate.go 填加的 --feature sql/versioned-migration 產生代碼
 go generate ./ent
 
+# 會檢查 ent 的 schema, 必需有做 go generate ./ent
 # 產生 *_create_users.sql, atlas.sum 來記錄 migration
 go run -mod=mod ent/migrate/main.go create_users
+```
+
+# lint 代碼
+
+```diff
+# ent/schema/user.go
+# 填加身高欄位
+
+func (User) Fields() []ent.Field {
+	return []ent.Field{
+		field.String("name").
+			Default("unknown"),
+		field.Int("age").
+			Positive(),
++		field.Float("height").
++			Positive(),
+	}
+}
+```
+
+```sh
+# 產生 height 欄位的代碼
+go generate ./ent
+
+# 產生 migrate 的 *_users_add_height.sql 記錄
+go run -mod=mod ent/migrate/main.go users_add_height
+
+# *.sql 的執行檢查
+# --latest 對最新的N遷移文件運行分析
+go run -mod=mod ariga.io/atlas/cmd/atlas@master migrate lint \
+  --dev-url="mysql://root:password@localhost:3306/test" \
+  --dir="file://ent/migrate/migrations" \
+  --latest=1
+
+# 或
+
+atlas migrate lint \
+  --dev-url="mysql://root:password@localhost:3306/test" \
+  --dir="file://ent/migrate/migrations" \
+  --latest=1
+
+# 顯示結果
+*_users_add_height.sql: data dependent changes detected:
+
+    L2: Adding a non-nullable "double" column "height" on table "users" without a default value implicitly sets existing rows with 0
 ```

@@ -11,6 +11,8 @@ const (
 	FieldName = "name"
 	// FieldAge holds the string denoting the age field in the database.
 	FieldAge = "age"
+	// FieldHeight holds the string denoting the height field in the database.
+	FieldHeight = "height"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 )
@@ -20,6 +22,7 @@ var Columns = []string{
 	FieldID,
 	FieldName,
 	FieldAge,
+	FieldHeight,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -37,4 +40,6 @@ var (
 	DefaultName string
 	// AgeValidator is a validator for the "age" field. It is called by the builders before save.
 	AgeValidator func(int) error
+	// HeightValidator is a validator for the "height" field. It is called by the builders before save.
+	HeightValidator func(float64) error
 )
