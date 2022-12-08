@@ -82,6 +82,16 @@ go run main.go
 
 # 設定 Atlas
 
+```go
+// main.go
+// 不要啓用
+
+    // 自動執行 migration 工具
+	// if err := client.Schema.Create(context.Background()); err != nil {
+	// 	log.Fatalf("failed creating schema resources: %v", err)
+	// }
+```
+
 - 若是用 entgql 則改用 entc 方式
 
 ```diff
@@ -193,4 +203,15 @@ atlas migrate lint \
 *_users_add_height.sql: data dependent changes detected:
 
     L2: Adding a non-nullable "double" column "height" on table "users" without a default value implicitly sets existing rows with 0
+```
+
+## Apply Migrations
+
+```sh
+# 同意提交,並修改
+# 會在資料庫建立 atlas_schema_revisions 表
+
+atlas migrate apply \
+  --dir "file://ent/migrate/migrations" \
+  --url mysql://root:password@localhost:3306/ent_atlas_migration
 ```
