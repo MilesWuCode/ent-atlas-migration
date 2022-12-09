@@ -61,6 +61,14 @@ func (uu *UserUpdate) SetHeight(f float64) *UserUpdate {
 	return uu
 }
 
+// SetNillableHeight sets the "height" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableHeight(f *float64) *UserUpdate {
+	if f != nil {
+		uu.SetHeight(*f)
+	}
+	return uu
+}
+
 // AddHeight adds f to the "height" field.
 func (uu *UserUpdate) AddHeight(f float64) *UserUpdate {
 	uu.mutation.AddHeight(f)
@@ -230,6 +238,14 @@ func (uuo *UserUpdateOne) AddAge(i int) *UserUpdateOne {
 func (uuo *UserUpdateOne) SetHeight(f float64) *UserUpdateOne {
 	uuo.mutation.ResetHeight()
 	uuo.mutation.SetHeight(f)
+	return uuo
+}
+
+// SetNillableHeight sets the "height" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableHeight(f *float64) *UserUpdateOne {
+	if f != nil {
+		uuo.SetHeight(*f)
+	}
 	return uuo
 }
 

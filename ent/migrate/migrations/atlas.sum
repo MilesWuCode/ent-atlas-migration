@@ -1,3 +1,4 @@
-h1:LhstIRxRXg6BJNTh3uxT+YiUwuf3sjpRO1JeCejAgh8=
+h1:VeE/mK2Ok8/wJs61v0KDvKXLxa1xAMWhZ17TSNLyTAU=
 20221208030521_create_users.sql h1:SYaz+FLQwujOQPlUb5l0XGrq5INbOd+KUV0QjeGl0TA=
-20221208033520_users_add_height.sql h1:NCcDD0mToHOIgTaQh72BC/imrp5OPcgu0Q9E5BRqiGY=
+20221209033915_users_add_height.sql h1:qFrwvcHiJ8yKJrsrGwgYk1ll4oduVW8wi0xZURFTnd8=
+20221209034200_users_column_rename.sql h1:ZVrTkPQUxT1YREHYkM7Hdj43BF7u1T5+KjqgQKxFb38=

@@ -45,6 +45,14 @@ func (uc *UserCreate) SetHeight(f float64) *UserCreate {
 	return uc
 }
 
+// SetNillableHeight sets the "height" field if the given value is not nil.
+func (uc *UserCreate) SetNillableHeight(f *float64) *UserCreate {
+	if f != nil {
+		uc.SetHeight(*f)
+	}
+	return uc
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uc *UserCreate) Mutation() *UserMutation {
 	return uc.mutation
@@ -125,6 +133,10 @@ func (uc *UserCreate) defaults() {
 	if _, ok := uc.mutation.Name(); !ok {
 		v := user.DefaultName
 		uc.mutation.SetName(v)
+	}
+	if _, ok := uc.mutation.Height(); !ok {
+		v := user.DefaultHeight
+		uc.mutation.SetHeight(v)
 	}
 }
 

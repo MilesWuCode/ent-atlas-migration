@@ -18,7 +18,8 @@ func (User) Fields() []ent.Field {
 		field.Int("age").
 			Positive(),
 		field.Float("height").
-			Positive(),
+			Positive().
+			Default(0),
 	}
 }
 

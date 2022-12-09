@@ -23,6 +23,8 @@ func init() {
 	user.AgeValidator = userDescAge.Validators[0].(func(int) error)
 	// userDescHeight is the schema descriptor for height field.
 	userDescHeight := userFields[2].Descriptor()
+	// user.DefaultHeight holds the default value on creation for the height field.
+	user.DefaultHeight = userDescHeight.Default.(float64)
 	// user.HeightValidator is a validator for the "height" field. It is called by the builders before save.
 	user.HeightValidator = userDescHeight.Validators[0].(func(float64) error)
 }

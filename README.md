@@ -86,7 +86,7 @@ go run main.go
 // main.go
 // 不要啓用
 
-    // 自動執行 migration 工具
+	// 自動執行 migration 工具
 	// if err := client.Schema.Create(context.Background()); err != nil {
 	// 	log.Fatalf("failed creating schema resources: %v", err)
 	// }
@@ -141,7 +141,7 @@ func main() {
         log.Fatalln("migration name is required. Use: 'go run -mod=mod ent/migrate/main.go <name>'")
     }
     // Generate migrations using Atlas support for MySQL (note the Ent dialect option passed above).
-    err = migrate.NamedDiff(ctx, "mysql://root:pass@localhost:3306/test", os.Args[1], opts...)
+    err = migrate.NamedDiff(ctx, "mysql://root:password@localhost:3306/test", os.Args[1], opts...)
     if err != nil {
         log.Fatalf("failed generating migration file: %v", err)
     }
@@ -203,6 +203,38 @@ atlas migrate lint \
 *_users_add_height.sql: data dependent changes detected:
 
     L2: Adding a non-nullable "double" column "height" on table "users" without a default value implicitly sets existing rows with 0
+
+# 修正
+# 刪除 *_users_add_height.sql
+# 還原 atlas.sum
+```
+
+```diff
+# ent/schema/user.go
+# 預設值為0
+
+func (User) Fields() []ent.Field {
+	return []ent.Field{
+		field.String("name").
+			Default("unknown"),
+		field.Int("age").
+			Positive(),
+		field.Float("height").
+			Positive().
++     Default(0),
+	}
+}
+```
+
+```sh
+# 重做
+go run -mod=mod ent/migrate/main.go users_add_height
+
+# 驗證
+atlas migrate lint \
+  --dev-url="mysql://root:password@localhost:3306/test" \
+  --dir="file://ent/migrate/migrations" \
+  --latest=1
 ```
 
 ## Apply Migrations
@@ -214,4 +246,69 @@ atlas migrate lint \
 atlas migrate apply \
   --dir "file://ent/migrate/migrations" \
   --url mysql://root:password@localhost:3306/ent_atlas_migration
+```
+
+## 修改欄位名
+
+```diff
+# ent/schema/user.go
+-	field.String("name").
++	field.String("nickname").
+```
+
+```sh
+# 方法一
+# 檢查 ent/schema/user.go, 產生代碼
+go generate ./ent
+
+# 檢查產生代碼後再產生 *_users_column_rename.sql
+go run -mod=mod ent/migrate/main.go users_column_rename
+```
+
+```diff
+# *_users_column_rename.sql
+# 手動更改語法,原語法是新增欄位
+
+- ALTER TABLE `users` ADD COLUMN `nickname` varchar(255) NOT NULL DEFAULT 'unknown';
++ ALTER TABLE `users` RENAME COLUMN `name` TO `nickname`;
+```
+
+```sh
+# 更新 atlas.sum 碼
+atlas migrate hash \
+  --dir "file://ent/migrate/migrations"
+
+# lint
+# apply
+# 完成
+```
+
+```sh
+# 方法二
+atlas migrate new users_column_rename \
+  --dir "file://ent/migrate/migrations"
+```
+
+```go
+// *_users_column_rename.sql
+// 寫更換欄位名字的sql語法
+
+ALTER TABLE `users` RENAME COLUMN `name` TO `nickname`;
+```
+
+```sh
+# 更新 atlas.sum 碼
+atlas migrate hash \
+  --dir "file://ent/migrate/migrations"
+
+# lint
+# apply
+# 完成
+```
+
+## 驗證
+
+```sh
+#
+atlas migrate validate --dir file://ent/migrate/migrations
 ```

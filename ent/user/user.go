@@ -40,6 +40,8 @@ var (
 	DefaultName string
 	// AgeValidator is a validator for the "age" field. It is called by the builders before save.
 	AgeValidator func(int) error
+	// DefaultHeight holds the default value on creation for the "height" field.
+	DefaultHeight float64
 	// HeightValidator is a validator for the "height" field. It is called by the builders before save.
 	HeightValidator func(float64) error
 )
