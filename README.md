@@ -306,9 +306,41 @@ atlas migrate hash \
 # 完成
 ```
 
-## 驗證
+## TEST
 
 ```sh
-#
+# 執行所有
+# Total number of files.
+number_of_files=$(ls ent/migrate/migrations/*.sql | wc -l)
+
+# Execute all files without the latest.
+atlas migrate apply $[number_of_files-1] \
+  --dir "file://ent/migrate/migrations" \
+  -u "mysql://root:password@localhost:3306/test"
+
+# 狀態
+atlas migrate status \
+  --dir "file://ent/migrate/migrations" \
+  -u "mysql://root:password@localhost:3306/test"
+
+Migration Status: PENDING
+  -- Current Version: <VERSION_N-1>
+  -- Next Version:    <VERSION_N>
+  -- Executed Files:  <N-1>
+  -- Pending Files:   1
+
+# 寫入
+atlas migrate apply \
+  --dir "file://ent/migrate/migrations" \
+  -u "mysql://root:password@localhost:3306/test"
+
+# 清空所有
+atlas schema clean -u "mysql://root:password@localhost:3306/test"
+```
+
+## 其他
+
+```sh
+# 檢查 migrations 資料
 atlas migrate validate --dir file://ent/migrate/migrations
 ```

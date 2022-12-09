@@ -13,10 +13,10 @@ import (
 func init() {
 	userFields := schema.User{}.Fields()
 	_ = userFields
-	// userDescName is the schema descriptor for name field.
-	userDescName := userFields[0].Descriptor()
-	// user.DefaultName holds the default value on creation for the name field.
-	user.DefaultName = userDescName.Default.(string)
+	// userDescNickname is the schema descriptor for nickname field.
+	userDescNickname := userFields[0].Descriptor()
+	// user.DefaultNickname holds the default value on creation for the nickname field.
+	user.DefaultNickname = userDescNickname.Default.(string)
 	// userDescAge is the schema descriptor for age field.
 	userDescAge := userFields[1].Descriptor()
 	// user.AgeValidator is a validator for the "age" field. It is called by the builders before save.

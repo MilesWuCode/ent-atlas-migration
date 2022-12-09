@@ -7,8 +7,8 @@ const (
 	Label = "user"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldName holds the string denoting the name field in the database.
-	FieldName = "name"
+	// FieldNickname holds the string denoting the nickname field in the database.
+	FieldNickname = "nickname"
 	// FieldAge holds the string denoting the age field in the database.
 	FieldAge = "age"
 	// FieldHeight holds the string denoting the height field in the database.
@@ -20,7 +20,7 @@ const (
 // Columns holds all SQL columns for user fields.
 var Columns = []string{
 	FieldID,
-	FieldName,
+	FieldNickname,
 	FieldAge,
 	FieldHeight,
 }
@@ -36,8 +36,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// DefaultName holds the default value on creation for the "name" field.
-	DefaultName string
+	// DefaultNickname holds the default value on creation for the "nickname" field.
+	DefaultNickname string
 	// AgeValidator is a validator for the "age" field. It is called by the builders before save.
 	AgeValidator func(int) error
 	// DefaultHeight holds the default value on creation for the "height" field.
